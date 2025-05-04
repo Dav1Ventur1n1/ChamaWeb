@@ -5,7 +5,7 @@ require_once 'inc/connect.php';
 // Função de registro de mudança de campo
 function registrarMudanca($pdo, $ticket_id, $user_id, $campo, $old, $new) {
     if ($old !== $new) {
-        $stmt = $pdo->prepare("INSERT INTO changes (ticket_id, user_id, campo, valor_anterior, valor_novo) 
+        $stmt = $pdo->prepare("INSERT INTO changes (ticket_id, user_id, campo, valor_anterior, valor_novo)
                                VALUES (:tid, :uid, :c, :old, :new)");
         $stmt->execute([
             'tid' => $ticket_id,
@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtUpd->execute(['e'=>$newEstado, 'id'=>$ticket_id]);
             registrarMudanca($pdo, $ticket_id, $user_id, 'estado', $oldEstado, $newEstado);
             // Notifica solicitante
-            enviarNotificacao($ticket['user_email'], 
+            enviarNotificacao($ticket['user_email'],
                 "Chamado #$ticket_id foi encerrado",
                 "O chamado foi encerrado pelo analista."
             );
@@ -138,8 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $novoRisco      = $_POST['novo_risco'] ?? $oldRisco;
             $novoAssigned   = $_POST['novo_assigned_to'] ?? $oldAssigned;
 
-            $stmtUpd = $pdo->prepare("UPDATE tickets 
-                SET prioridade=:p, estado=:e, risco=:r, assigned_to=:a 
+            $stmtUpd = $pdo->prepare("UPDATE tickets
+                SET prioridade=:p, estado=:e, risco=:r, assigned_to=:a
                 WHERE id=:id");
             $stmtUpd->execute([
                 'p'=>$novaPrioridade,
@@ -187,7 +187,7 @@ $comentarios = $stmtC->fetchAll(PDO::FETCH_ASSOC);
 <head>
   <meta charset="UTF-8"/>
   <title>Chamado #<?php echo $ticket_id; ?></title>
-  <link rel="stylesheet" href="css/style.css" />
+  <<link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <h1>Chamado #<?php echo $ticket['id']; ?> - <?php echo htmlspecialchars($ticket['titulo']); ?></h1>
@@ -208,7 +208,7 @@ $comentarios = $stmtC->fetchAll(PDO::FETCH_ASSOC);
   <h3>Atualizar Chamado</h3>
   <form method="POST">
     <input type="hidden" name="acao" value="atualizar" />
-    
+
     <label for="novo_prioridade">Prioridade</label>
     <select id="novo_prioridade" name="nova_prioridade">
       <option value="Baixo"   <?php if($ticket['prioridade']=='Baixo') echo 'selected';?>>Baixo</option>
@@ -242,7 +242,7 @@ $comentarios = $stmtC->fetchAll(PDO::FETCH_ASSOC);
     <select id="novo_assigned_to" name="novo_assigned_to">
       <option value="">-- Ninguém --</option>
       <?php foreach($allAnalistas as $an): ?>
-        <option value="<?php echo $an['id']; ?>" 
+        <option value="<?php echo $an['id']; ?>"
           <?php if($ticket['assigned_to'] == $an['id']) echo 'selected'; ?>>
           <?php echo $an['nome']; ?>
         </option>
@@ -281,7 +281,7 @@ $comentarios = $stmtC->fetchAll(PDO::FETCH_ASSOC);
   <h2>Comentários</h2>
   <?php foreach ($comentarios as $c): ?>
     <div class="comentario">
-      <strong><?php echo htmlspecialchars($c['nome']); ?></strong> 
+      <strong><?php echo htmlspecialchars($c['nome']); ?></strong>
       <?php echo $c['data_criacao']; ?>
       <?php if (!$c['visivel_usuario']) echo ' <em>(Work Note)</em>'; ?>
       <p><?php echo nl2br(htmlspecialchars($c['conteudo'])); ?></p>

@@ -1,9 +1,9 @@
 <?php
 session_start();
-require_once 'inc/connect.php';
+require_once 'static-files/inc/connect.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'administrador') {
-    header('Location: index.html');
+    header('Location: frontend/index.html');
     exit;
 }
 
@@ -54,11 +54,10 @@ $cats = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 <head>
   <meta charset="UTF-8">
   <title>Administração</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="static-files/css/style.css" />
 </head>
 <body>
   <h1>Painel do Administrador</h1>
-  <a href="dashboard.php">Voltar ao Dashboard</a>
 
   <h2>Gerenciar Usuários</h2>
   <form method="POST">
@@ -118,6 +117,8 @@ $cats = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
       </li>
     <?php endforeach; ?>
   </ul>
+  <br><br>
+  <a href="auth-service/dashboard.php">Voltar ao Dashboard</a>
 
 </body>
 </html>

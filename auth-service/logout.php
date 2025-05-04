@@ -16,5 +16,5 @@ if (isset($_SESSION['user_id'])) {
 }
 
 session_destroy();
-header('Location: index.html');
+header('Location: ../frontend/index.html');
 exit;

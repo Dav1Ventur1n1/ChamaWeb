@@ -45,9 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Insert
-    $stmtInsert = $pdo->prepare("INSERT INTO tickets 
-    (titulo, descricao, categoria_id, servico_impactado, tipo, prioridade, risco, user_id, assigned_to, assigned_team_id, data_abertura) 
-    VALUES 
+    $stmtInsert = $pdo->prepare("INSERT INTO tickets
+    (titulo, descricao, categoria_id, servico_impactado, tipo, prioridade, risco, user_id, assigned_to, assigned_team_id, data_abertura)
+    VALUES
     (:titulo, :descricao, :cat, :servico, :tipo, :prio, :risco, :uid, :assig, :team, NOW())");
 
     $stmtInsert->execute([
@@ -138,6 +138,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <button type="submit">Abrir Chamado</button>
+    <br><br>
+    <a href="../auth-service/dashboard.php">Voltar ao Dashboard</a>
   </form>
 </body>
 </html>

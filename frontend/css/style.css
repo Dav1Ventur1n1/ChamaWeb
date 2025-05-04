@@ -1,0 +1,75 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #333;
+    color: #f0f0f0;
+  }
+  
+  header, nav, main {
+    margin: 20px;
+  }
+  
+  header h1 {
+    margin: 0 0 10px;
+  }
+  
+  nav a {
+    margin-right: 15px;
+    color: #ffe300;
+    text-decoration: none;
+  }
+  
+  nav a:hover {
+    text-decoration: underline;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: #444;
+  }
+  
+  table th, table td {
+    border: 1px solid #555;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .login-container {
+    max-width: 300px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: #222;
+    border-radius: 8px;
+  }
+  
+  .login-container h1 {
+    margin-bottom: 20px;
+  }
+  
+  .login-container label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .login-container input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #555;
+    border-radius: 4px;
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .login-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ffe300;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  

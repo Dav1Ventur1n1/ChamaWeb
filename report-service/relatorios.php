@@ -15,7 +15,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     header('Content-Disposition: attachment; filename=relatorio_chamados.csv');
     $output = fopen('php://output', 'w');
     fputcsv($output, ['ID','Título','Estado','Prioridade','Data Abertura','Data Fechamento']);
-    
+
     // Pega todos chamados ou filtra
     $stmt = $pdo->query("SELECT id, titulo, estado, prioridade, data_abertura, data_fechamento FROM tickets");
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -40,7 +40,7 @@ $fechados = $stmtFechados->fetchColumn();
 
 // 4) Tempo médio de resolução (exemplo: diferença data_fechamento - data_abertura)
 $stmtMedia = $pdo->query("SELECT AVG(TIMESTAMPDIFF(HOUR, data_abertura, data_fechamento)) as media_horas
-                          FROM tickets 
+                          FROM tickets
                           WHERE estado='Fechado'");
 $mediaHoras = $stmtMedia->fetchColumn();
 $mediaHoras = round($mediaHoras, 2);
@@ -61,6 +61,6 @@ $mediaHoras = round($mediaHoras, 2);
 <p>Tempo Médio de Resolução (horas): <?php echo $mediaHoras; ?></p>
 
 <p><a href="?export=csv">Exportar CSV</a></p>
-<a href="dashboard.php">Voltar</a>
+<a href="../auth-service/dashboard.php">Voltar</a>
 </body>
 </html>

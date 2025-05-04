@@ -107,12 +107,12 @@ if ($role !== 'usuario') {
 <header>
   <h1>Bem-vindo, <?php echo htmlspecialchars($_SESSION['nome']); ?>!</h1>
   <nav>
-    <a href="criar_chamado.php">Abrir Novo Chamado</a>
+    <a href="../ticket-service/criar_chamado.php">Abrir Novo Chamado</a>
     <?php if ($role === 'administrador'): ?>
-      <a href="admin.php">Gerenciar Usuários</a>
-      <a href="relatorios.php">Relatórios</a> <!-- Geração de relatórios (RF07, RF15) -->
+      <a href="../admin.php">Gerenciar Usuários</a>
+      <a href="../report-service/relatorios.php">Relatórios</a> <!-- Geração de relatórios (RF07, RF15) -->
     <?php elseif ($role === 'analista'): ?>
-      <a href="relatorios.php">Relatórios</a>
+      <a href="../report-service/relatorios.php">Relatórios</a>
     <?php endif; ?>
     <a href="logout.php">Sair</a>
   </nav>
@@ -153,7 +153,7 @@ if ($role !== 'usuario') {
       <td><?php echo $ticket['prioridade']; ?></td>
       <td><?php echo $ticket['tipo']; ?></td>
       <td>
-        <a href="ticket.php?id=<?php echo $ticket['id']; ?>">Ver Detalhes</a>
+        <a href="../ticket-service/ticket.php?id=<?php echo $ticket['id']; ?>">Ver Detalhes</a>
       </td>
     </tr>
     <?php endforeach; ?>

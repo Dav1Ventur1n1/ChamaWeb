@@ -29,6 +29,7 @@ if (isset($_POST['email'])) {
 <head>
     <meta charset="UTF-8" />
     <title>Recuperar Senha</title>
+    <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
     <h1>Recuperar Senha</h1>
@@ -37,6 +38,6 @@ if (isset($_POST['email'])) {
         <input type="email" name="email" required />
         <button type="submit">Recuperar</button>
     </form>
-    <p><a href="index.html">Voltar ao Login</a></p>
+    <p><a href="../frontend/index.html">Voltar ao Login</a></p>
 </body>
 </html>
