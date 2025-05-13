@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Portal de Chamados - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1 id="bemVindo">Bem-vindo!</h1>
+    <nav>
+      <a href="../ticket/criar_chamado.php">Abrir Novo Chamado</a>
+      <a href="#" onclick="logout()">Sair</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Lista de Chamados</h2>
+    <table id="tabelaChamados">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Estado</th>
+          <th>Prioridade</th>
+          <th>Tipo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Conteúdo inserido por JS -->
+      </tbody>
+    </table>
+  </main>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      window.location.href = "/";
+    } else {
+      document.getElementById("bemVindo").textContent = `Bem-vindo, ${user.nome}!`;
+    }
+
+    async function buscarChamados() {
+      try {
+        const res = await fetch(`/ticket/api/listar.php?id=${user.id}&role=${user.role}`);
+        const chamados = await res.json();
+        const tbody = document.querySelector("#tabelaChamados tbody");
+
+        chamados.forEach(ticket => {
+          const linha = `
+            <tr>
+              <td>${ticket.id}</td>
+              <td>${ticket.titulo}</td>
+              <td>${ticket.estado}</td>
+              <td>${ticket.prioridade}</td>
+              <td>${ticket.tipo}</td>
+            </tr>`;
+          tbody.innerHTML += linha;
+        });
+      } catch (e) {
+        alert("Erro ao buscar chamados.");
+        console.error(e);
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("user");
+      window.location.href = "/";
+    }
+
+    buscarChamados();
+  </script>
+</body>
+</html>

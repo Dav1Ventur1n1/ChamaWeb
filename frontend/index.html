@@ -8,17 +8,19 @@
 <body>
   <div class="login-container">
     <h1>Portal de Chamados</h1>
-    <form action="../auth-service/dashboard.php" method="POST">
+    <form id="loginForm">
       <label for="email">E-mail</label>
-      <input type="email" id="email" name="email" required />
+      <input type="email" id="email" required />
 
       <label for="senha">Senha</label>
-      <input type="password" id="senha" name="senha" required />
+      <input type="password" id="senha" required />
 
       <button type="submit">Entrar</button>
     </form>
-
+    <p id="mensagem" style="color:red;"></p>
     <p><a href="../auth-service/reset_password.php">Esqueci minha senha</a></p>
   </div>
+
+  <script src="../auth-service/js/login.js"></script>
 </body>
 </html>
