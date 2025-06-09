@@ -1,0 +1,202 @@
+/* theme.css - Suporte para tema claro/escuro */
+
+/* Variáveis de tema escuro (padrão) */
+:root {
+  /* Cores principais - tema escuro */
+  --primary-color: #ffe300;
+  --primary-dark: #e6cc00;
+  --secondary-color: #333;
+  --text-color: #f0f0f0;
+  --text-secondary: #ccc;
+  --background-dark: #222;
+  --background-light: #2d2d2d;
+  --border-color: #444;
+  
+  /* Cores de estado */
+  --success-color: #4CAF50;
+  --error-color: #F44336;
+  --warning-color: #FF9800;
+  --info-color: #2196F3;
+  
+  /* Cores de status */
+  --status-open: #2196F3;
+  --status-analysis: #9C27B0;
+  --status-waiting: #FF9800;
+  --status-resolved: #4CAF50;
+  --status-closed: #9E9E9E;
+  
+  /* Cores de prioridade */
+  --priority-low: #8BC34A;
+  --priority-medium: #FFC107;
+  --priority-high: #FF5722;
+  --priority-critical: #F44336;
+  
+  /* Cores de risco */
+  --risk-low: #8BC34A;
+  --risk-medium: #FFC107;
+  --risk-high: #F44336;
+  
+  /* Efeitos */
+  --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  --transition-speed: 0.3s;
+  --border-radius: 4px;
+}
+
+/* Tema claro */
+.light-theme {
+  --primary-color: #ff9800;
+  --primary-dark: #f57c00;
+  --secondary-color: #f9f9f9;
+  --text-color: #333;
+  --text-secondary: #666;
+  --background-dark: #ffffff;
+  --background-light: #f5f5f5;
+  --border-color: #ddd;
+  
+  /* Ajuste de cores de estado para tema claro */
+  --success-color: #2E7D32;
+  --error-color: #C62828;
+  --warning-color: #EF6C00;
+  --info-color: #0D47A1;
+  
+  /* Cores de status em tema claro */
+  --status-open: #1565C0;
+  --status-analysis: #6A1B9A;
+  --status-waiting: #EF6C00;
+  --status-resolved: #2E7D32;
+  --status-closed: #616161;
+  
+  /* Ajuste de sombras */
+  --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Aplicação de cores baseadas em estado */
+.status-aberto {
+  color: var(--status-open);
+}
+
+.status-em-analise {
+  color: var(--status-analysis);
+}
+
+.status-aguardando-usuario {
+  color: var(--status-waiting);
+}
+
+.status-resolvido {
+  color: var(--status-resolved);
+}
+
+.status-fechado {
+  color: var(--status-closed);
+}
+
+/* Aplicação de cores baseadas em prioridade */
+.priority-baixo {
+  color: var(--priority-low);
+}
+
+.priority-medio {
+  color: var(--priority-medium);
+}
+
+.priority-alto {
+  color: var(--priority-high);
+}
+
+.priority-critico {
+  color: var(--priority-critical);
+}
+
+/* Aplicação de cores baseadas em risco */
+.risk-baixo {
+  color: var(--risk-low);
+}
+
+.risk-medio {
+  color: var(--risk-medium);
+}
+
+.risk-alto {
+  color: var(--risk-high);
+}
+
+/* Estilos do botão de alternar tema */
+.theme-toggle-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+}
+
+.theme-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--background-light);
+  color: var(--text-color);
+  border: 2px solid var(--primary-color);
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--box-shadow);
+  transition: all var(--transition-speed) ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Ajustes para tema claro */
+.light-theme body {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+}
+
+.light-theme header {
+  background-color: var(--background-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.light-theme .card {
+  background-color: var(--background-light);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.light-theme .data-table th {
+  background-color: var(--background-dark);
+}
+
+.light-theme .data-table td {
+  background-color: var(--background-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.light-theme .data-table tbody tr:hover td {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.light-theme .comentario {
+  background-color: var(--background-light);
+  border-left: 3px solid var(--primary-color);
+}
+
+.light-theme a {
+  color: var(--primary-color);
+}
+
+.light-theme a:hover {
+  color: var(--primary-dark);
+}
+
+/* Transição suave entre temas */
+body, body *, header, .card, .data-table th, 
+.data-table td, .comentario, button, a {
+  transition: background-color var(--transition-speed) ease,
+              color var(--transition-speed) ease,
+              box-shadow var(--transition-speed) ease,
+              border-color var(--transition-speed) ease;
+}

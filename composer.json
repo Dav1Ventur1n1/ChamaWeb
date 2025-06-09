@@ -1,0 +1,7 @@
+{
+    "require": {
+        "league/oauth2-client": "^2.8",
+        "aws/aws-sdk-php": "^3.337",
+        "guzzlehttp/guzzle": "^7.9"
+    }
+}

@@ -1,0 +1,200 @@
+/* animations.css - Efeitos visuais e animações para o Portal de Chamados */
+
+/* Animação de carregamento */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.loading {
+  animation: pulse 1.5s infinite;
+  position: relative;
+}
+
+/* Notificações de toast */
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  max-width: 300px;
+}
+
+.toast {
+  background-color: #333;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateX(50px);
+  transition: all 0.3s ease-in-out;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.toast.success {
+  background-color: #4CAF50;
+  border-left: 5px solid #2E7D32;
+}
+
+.toast.error {
+  background-color: #F44336;
+  border-left: 5px solid #B71C1C;
+}
+
+.toast.info {
+  background-color: #2196F3;
+  border-left: 5px solid #0D47A1;
+}
+
+.toast.warning {
+  background-color: #FF9800;
+  border-left: 5px solid #E65100;
+}
+
+/* Estilos para o dashboard */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.action-button {
+  background-color: #ffe300;
+  color: #000;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background-color: #e6cc00;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.last-update {
+  font-size: 0.8em;
+  color: #aaa;
+}
+
+/* Estilos para formulário de filtro */
+.filter-form {
+  margin-bottom: 20px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Estilos para tabela de dados */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background-color: #444;
+  padding: 10px;
+  font-weight: bold;
+  text-align: left;
+}
+
+.data-table td {
+  padding: 10px;
+  border-bottom: 1px solid #555;
+}
+
+.data-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Estados de tickets */
+.status-closed {
+  opacity: 0.6;
+}
+
+.priority-high {
+  background-color: rgba(255, 152, 0, 0.1);
+}
+
+.priority-critical {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.no-records {
+  text-align: center;
+  padding: 20px;
+  color: #999;
+  font-style: italic;
+}
+
+/* Efeitos para tabelas e linhas */
+.highlight-row {
+  background-color: rgba(255, 255, 0, 0.1) !important;
+  transition: background-color 0.5s ease;
+}
+
+.highlight-change {
+  background-color: rgba(33, 150, 243, 0.2);
+  transition: background-color 1s ease;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Auto-refresh toggle */
+.auto-refresh-toggle {
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+}
+
+.auto-refresh-toggle label {
+  display: flex;
+  align-items: center;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+.auto-refresh-toggle input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+.auto-refresh-toggle select {
+  margin-left: 5px;
+  padding: 2px 5px;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 3px;
+}
