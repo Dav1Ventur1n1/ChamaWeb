@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stats
+  template:
+    metadata:
+      labels:
+        app: stats
+    spec:
+      containers:
+      - name: stats
+        image: stats:latest
+        # Utilizamos imagens locais carregadas manualmente; não há necessidade
+        # de o Kubernetes tentar buscá-las em um registry externo.
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_HOST
+          value: db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stats
+spec:
+  selector:
+    app: stats
+  ports:
+  - port: 80
+    targetPort: 80

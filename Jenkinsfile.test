@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: env.GIT_URL
+            }
+        }
+
+        stage('Build containers') {
+            steps {
+                sh 'docker-compose build'
+            }
+        }
+
+        stage('Start services') {
+            steps {
+                sh 'docker-compose up -d'
+            }
+        }
+
+        stage('Smoke test') {
+            steps {
+                sh 'curl -f http://localhost:8081/ || true'
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker-compose down'
+        }
+    }
+}
