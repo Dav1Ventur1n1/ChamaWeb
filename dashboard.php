@@ -62,6 +62,7 @@ if ($role !== 'usuario') {
     <a href="logout.php">Sair</a>
   </nav>
 </header>
+
 <main>
   <div class="dashboard-header">
     <h2>Lista de Chamados</h2>

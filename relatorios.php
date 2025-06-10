@@ -24,6 +24,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     fclose($output);
     exit;
 }
+
 // Buscar estatísticas do microserviço via gateway
 require_once 'auth_token.php';
 $ch = curl_init('http://gateway:80/stats');

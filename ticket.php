@@ -1,5 +1,4 @@
 <?php
-
 // Manter todo o PHP original
 session_start();
 require_once 'inc/connect.php';
@@ -59,6 +58,7 @@ if (!$ticket) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Lógica de processamento do POST original
     // Manter todo o código original aqui
+    
     // Verifica se é comentário ou mudança de estado/encerramento
     if (isset($_POST['comentario'])) {
         // Adicionar Comentário

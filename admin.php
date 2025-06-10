@@ -63,6 +63,7 @@ if (isset($_POST['acao']) && $_POST['acao']==='criar_categoria') {
     header('Location: admin.php');
     exit;
 }
+
 if (isset($_GET['del_cat'])) {
     $catId = $_GET['del_cat'];
     $stmtDC = $pdo->prepare("DELETE FROM categories WHERE id=:id");

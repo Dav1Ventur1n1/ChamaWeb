@@ -15,6 +15,7 @@ pipeline {
                 docker build -t gateway:latest -f services/gateway/Dockerfile .
                 docker build -t tickets:latest -f services/tickets/Dockerfile .
                 docker build -t stats:latest -f services/stats/Dockerfile .
+                docker build -t nginx-proxy:latest -f nginx/Dockerfile nginx/
                 '''
             }
         }
@@ -32,6 +33,7 @@ pipeline {
                 minikube image load gateway:latest
                 minikube image load tickets:latest
                 minikube image load stats:latest
+                minikube image load nginx-proxy:latest
                 '''
             }
         }
