@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tickets
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tickets
+  template:
+    metadata:
+      labels:
+        app: tickets
+    spec:
+      containers:
+      - name: tickets
+        image: tickets:latest
+        # Usamos imagens locais carregadas no Minikube, portanto evitamos
+        # que o cluster tente puxá-las de um registry remoto.
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_HOST
+          value: db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tickets
+spec:
+  selector:
+    app: tickets
+  ports:
+  - port: 80
+    targetPort: 80

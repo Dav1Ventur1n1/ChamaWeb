@@ -30,114 +30,319 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tipo     = $_POST['tipo'] ?? 'Incidente';
     $categoria_id = $_POST['categoria_id'] ?? null;
 
-    // Se analista/admin, pode definir prioridade, risco, atribuição
     if ($role === 'analista' || $role === 'administrador') {
         $prioridade   = $_POST['prioridade'] ?? 'Baixo';
         $risco        = $_POST['risco'] ?? 'Baixo';
         $assigned_to  = $_POST['assigned_to'] ?? null;
         $assigned_team= $_POST['assigned_team'] ?? null;
     } else {
-        // Usuário comum
         $prioridade = 'Baixo';
         $risco = 'Baixo';
         $assigned_to = null;
         $assigned_team = null;
     }
-
-    // Insert
-    $stmtInsert = $pdo->prepare("INSERT INTO tickets 
-    (titulo, descricao, categoria_id, servico_impactado, tipo, prioridade, risco, user_id, assigned_to, assigned_team_id, data_abertura) 
-    VALUES 
-    (:titulo, :descricao, :cat, :servico, :tipo, :prio, :risco, :uid, :assig, :team, NOW())");
-
-    $stmtInsert->execute([
+    // Monta payload
+    $data = [
         'titulo' => $titulo,
         'descricao' => $descricao,
-        'cat' => $categoria_id,
-        'servico' => $servico,
+        'categoria_id' => $categoria_id ?: null,
+        'servico_impactado' => $servico,
         'tipo' => $tipo,
-        'prio' => $prioridade,
+        'prioridade' => $prioridade,
         'risco' => $risco,
-        'uid' => $user_id,
-        'assig' => $assigned_to ?: null,
-        'team' => $assigned_team ?: null
-    ]);
+        'user_id' => $user_id,
+        'assigned_to' => !empty($assigned_to) ? $assigned_to : null,
+        'assigned_team_id' => !empty($assigned_team) ? $assigned_team : null
+    ];
 
-    header("Location: dashboard.php");
-    exit;
+    // Envia para o microserviço de tickets através do gateway
+    $ch = curl_init('http://gateway:80/tickets');
+    curl_setopt($ch, CURLOPT_VERBOSE, true); // Para debugar
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer admin123'
+    ]);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if (curl_errno($ch)) {
+        echo '<pre>Erro CURL: ' . curl_error($ch) . '</pre>';
+    }
+
+    curl_close($ch);
+
+    if ($http_code === 200) {
+        header("Location: dashboard.php");
+        exit;
+    } else {
+        echo "<pre>Erro ao criar chamado via API. Código HTTP: $http_code</pre>";
+        echo "<pre>Resposta: $response</pre>";
+    }
+
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
-  <title>Abrir Chamado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abrir Novo Chamado</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/enhanced.css" />
+  <link rel="stylesheet" href="css/theme.css" />
 </head>
 <body>
-  <h1>Abrir Novo Chamado</h1>
-  <form method="POST">
-    <label for="titulo">Título</label>
-    <input type="text" id="titulo" name="titulo" required />
+  <header>
+    <h1>Portal de Chamados</h1>
+    <nav>
+      <a href="dashboard.php">Dashboard</a>
+      <a href="criar_chamado.php" class="active">Abrir Novo Chamado</a>
+      <?php if ($role === 'administrador'): ?>
+        <a href="admin.php">Gerenciar Usuários</a>
+        <a href="relatorios.php">Relatórios</a>
+      <?php elseif ($role === 'analista'): ?>
+        <a href="relatorios.php">Relatórios</a>
+      <?php endif; ?>
+      <a href="logout.php">Sair</a>
+    </nav>
+  </header>
+  
+  <main>
+    <div class="dashboard-header">
+      <h2>Abrir Novo Chamado</h2>
+      <div class="action-buttons">
+        <a href="dashboard.php" class="button">Voltar ao Dashboard</a>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">Informações do Chamado</div>
+      <div class="card-content">
+        <form method="POST" id="criar-chamado-form">
+          <div class="form-field">
+            <label for="titulo">Título</label>
+            <input type="text" id="titulo" name="titulo" required placeholder="Digite um título descritivo para o chamado" />
+            <div class="error-message">Por favor, informe um título para o chamado.</div>
+          </div>
 
-    <label for="descricao">Descrição</label>
-    <textarea id="descricao" name="descricao" required></textarea>
+          <div class="form-field">
+            <label for="descricao">Descrição</label>
+            <textarea id="descricao" name="descricao" required rows="6" placeholder="Descreva o problema ou solicitação detalhadamente..."></textarea>
+            <div class="error-message">Por favor, forneça uma descrição detalhada.</div>
+          </div>
 
-    <label for="tipo">Tipo</label>
-    <select id="tipo" name="tipo">
-      <option value="Incidente">Incidente</option>
-      <option value="Requisicao">Requisição</option>
-    </select>
+          <div class="form-row">
+            <div class="form-field">
+              <label for="tipo">Tipo</label>
+              <select id="tipo" name="tipo">
+                <option value="Incidente">Incidente</option>
+                <option value="Requisicao">Requisição</option>
+              </select>
+            </div>
 
-    <label for="categoria_id">Categoria</label>
-    <select id="categoria_id" name="categoria_id">
-      <option value="">-- Selecione --</option>
-      <?php foreach($categorias as $cat): ?>
-        <option value="<?php echo $cat['id']; ?>"><?php echo $cat['nome']; ?></option>
-      <?php endforeach; ?>
-    </select>
+            <div class="form-field">
+              <label for="categoria_id">Categoria</label>
+              <select id="categoria_id" name="categoria_id" required>
+                <option value="">-- Selecione --</option>
+                <?php foreach($categorias as $cat): ?>
+                  <option value="<?php echo $cat['id']; ?>"><?php echo $cat['nome']; ?></option>
+                <?php endforeach; ?>
+              </select>
+              <div class="error-message">Por favor, selecione uma categoria.</div>
+            </div>
+          </div>
 
-    <label for="servico">Serviço Impactado</label>
-    <input type="text" id="servico" name="servico" />
+          <div class="form-field">
+            <label for="servico">Serviço Impactado</label>
+            <input type="text" id="servico" name="servico" placeholder="Ex: Sistema ERP, Site Institucional, etc." />
+          </div>
 
-    <?php if ($role === 'analista' || $role === 'administrador'): ?>
-      <label for="prioridade">Prioridade</label>
-      <select id="prioridade" name="prioridade">
-        <option value="Baixo">Baixo</option>
-        <option value="Medio">Médio</option>
-        <option value="Alto">Alto</option>
-        <option value="Critico">Crítico</option>
-      </select>
+          <?php if ($role === 'analista' || $role === 'administrador'): ?>
+            <div class="card-subheader">Opções Avançadas</div>
+            
+            <div class="form-row">
+              <div class="form-field">
+                <label for="prioridade">Prioridade</label>
+                <select id="prioridade" name="prioridade">
+                  <option value="Baixo">Baixo</option>
+                  <option value="Medio">Médio</option>
+                  <option value="Alto">Alto</option>
+                  <option value="Critico">Crítico</option>
+                </select>
+              </div>
 
-      <label for="risco">Risco</label>
-      <select id="risco" name="risco">
-        <option value="Baixo">Baixo</option>
-        <option value="Medio">Médio</option>
-        <option value="Alto">Alto</option>
-      </select>
+              <div class="form-field">
+                <label for="risco">Risco</label>
+                <select id="risco" name="risco">
+                  <option value="Baixo">Baixo</option>
+                  <option value="Medio">Médio</option>
+                  <option value="Alto">Alto</option>
+                </select>
+              </div>
+            </div>
 
-      <label for="assigned_to">Atribuir a Analista</label>
-      <select id="assigned_to" name="assigned_to">
-        <option value="">-- Ninguém --</option>
-        <?php foreach($analistas as $an): ?>
-          <option value="<?php echo $an['id']; ?>"><?php echo $an['nome']; ?></option>
-        <?php endforeach; ?>
-      </select>
+            <div class="form-row">
+              <div class="form-field">
+                <label for="assigned_to">Atribuir a Analista</label>
+                <select id="assigned_to" name="assigned_to">
+                  <option value="">-- Ninguém --</option>
+                  <?php foreach($analistas as $an): ?>
+                    <option value="<?php echo $an['id']; ?>"><?php echo $an['nome']; ?></option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
 
-      <label for="assigned_team">Atribuir a Equipe</label>
-      <select id="assigned_team" name="assigned_team">
-        <option value="">-- Nenhuma --</option>
-        <?php foreach($teams as $tm): ?>
-          <option value="<?php echo $tm['id']; ?>"><?php echo $tm['nome']; ?></option>
-        <?php endforeach; ?>
-      </select>
-    <?php else: ?>
-      <!-- Usuário comum não escolhe prioridade, risco, analista, equipe -->
-      <p>Prioridade Padrão: Baixo</p>
-      <p>Risco Padrão: Baixo</p>
-    <?php endif; ?>
+              <div class="form-field">
+                <label for="assigned_team">Atribuir a Equipe</label>
+                <select id="assigned_team" name="assigned_team">
+                  <option value="">-- Nenhuma --</option>
+                  <?php foreach($teams as $tm): ?>
+                    <option value="<?php echo $tm['id']; ?>"><?php echo $tm['nome']; ?></option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+            </div>
+          <?php else: ?>
+            <!-- Usuário comum não escolhe prioridade, risco, analista, equipe -->
+            <div class="form-info">
+              <p>Este chamado será aberto com prioridade e risco "Baixo" e será encaminhado para a equipe de triagem.</p>
+            </div>
+          <?php endif; ?>
 
-    <button type="submit">Abrir Chamado</button>
-  </form>
+          <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($user_id); ?>">
+
+          <div class="form-actions">
+            <button type="submit" id="submit-button" class="action-button">Abrir Chamado</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <div id="theme-toggle-container" class="theme-toggle-container">
+    <button id="theme-toggle" class="theme-toggle" title="Alternar tema claro/escuro">🌓</button>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tema claro/escuro
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('light-theme');
+        const isDark = !document.body.classList.contains('light-theme');
+        localStorage.setItem('darkTheme', isDark);
+      });
+      
+      // Restaurar tema
+      if (localStorage.getItem('darkTheme') === 'false') {
+        document.body.classList.add('light-theme');
+      }
+    }
+    
+    // Validação de formulário
+    const form = document.getElementById('criar-chamado-form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Validar campos obrigatórios
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+          if (!field.value.trim()) {
+            e.preventDefault();
+            isValid = false;
+            const formField = field.closest('.form-field');
+            formField.classList.add('error');
+          } else {
+            const formField = field.closest('.form-field');
+            formField.classList.remove('error');
+            formField.classList.add('success');
+          }
+        });
+        
+        // Adicionar evento de input para remover erro enquanto digita
+        requiredFields.forEach(field => {
+          field.addEventListener('input', function() {
+            const formField = this.closest('.form-field');
+            formField.classList.remove('error', 'success');
+          });
+        });
+        
+        if (!isValid) {
+          // Criar notificação toast
+          showToast('error', 'Por favor, preencha todos os campos obrigatórios');
+        } else {
+          // Mostrar feedback visual de envio
+          document.getElementById('submit-button').disabled = true;
+          document.getElementById('submit-button').innerHTML = '<span class="spinner"></span> Enviando...';
+          // Criar notificação toast
+          showToast('info', 'Criando chamado, aguarde...');
+        }
+      });
+    }
+    
+    // Função para mostrar toast
+    function showToast(type, message) {
+      // Verificar se o container existe
+      let container = document.querySelector('.toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+      }
+      
+      // Criar o toast
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      
+      // Adicionar ao container
+      container.appendChild(toast);
+      
+      // Mostrar o toast
+      setTimeout(() => {
+        toast.classList.add('show');
+      }, 10);
+      
+      // Remover após alguns segundos
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          container.removeChild(toast);
+        }, 300);
+      }, 3000);
+    }
+  });
+  </script>
+  
+<div id="theme-toggle-container" class="theme-toggle-container">
+  <button id="theme-toggle" class="theme-toggle" title="Alternar tema claro/escuro">🌓</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Tema claro/escuro
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      document.body.classList.toggle('light-theme');
+      const isDark = !document.body.classList.contains('light-theme');
+      localStorage.setItem('darkTheme', isDark);
+    });
+    
+    // Restaurar tema
+    if (localStorage.getItem('darkTheme') === 'false') {
+      document.body.classList.add('light-theme');
+    }
+  }
+});
+</script>
+
 </body>
 </html>

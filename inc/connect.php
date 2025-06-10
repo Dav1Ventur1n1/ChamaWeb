@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 $host = 'localhost';
 $db   = 'db_chamados2';
 $user = 'root';
@@ -11,4 +12,7 @@ try {
     echo "Erro ao conectar: " . $e->getMessage();
     exit;
 }
+=======
+require_once __DIR__ . '/../shared/connect.php';
+>>>>>>> finalizado_jenkins
 ?>

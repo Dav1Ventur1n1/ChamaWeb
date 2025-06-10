@@ -1,4 +1,6 @@
 <?php
+
+// Manter todo o PHP original
 session_start();
 require_once 'inc/connect.php';
 
@@ -55,6 +57,8 @@ if (!$ticket) {
 
 // Se postamos novo comentário ou atualizações
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Lógica de processamento do POST original
+    // Manter todo o código original aqui
     // Verifica se é comentário ou mudança de estado/encerramento
     if (isset($_POST['comentario'])) {
         // Adicionar Comentário
@@ -186,130 +190,377 @@ $comentarios = $stmtC->fetchAll(PDO::FETCH_ASSOC);
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chamado #<?php echo $ticket_id; ?></title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/enhanced.css" />
+  <link rel="stylesheet" href="css/theme.css" />
 </head>
 <body>
-  <h1>Chamado #<?php echo $ticket['id']; ?> - <?php echo htmlspecialchars($ticket['titulo']); ?></h1>
-  <p><strong>Descrição:</strong> <?php echo nl2br(htmlspecialchars($ticket['descricao'])); ?></p>
-  <p><strong>Estado:</strong> <?php echo $ticket['estado']; ?></p>
-  <p><strong>Prioridade:</strong> <?php echo $ticket['prioridade']; ?></p>
-  <p><strong>Risco:</strong> <?php echo $ticket['risco']; ?></p>
-  <p><strong>Tipo:</strong> <?php echo $ticket['tipo']; ?></p>
-  <p><strong>Data Abertura:</strong> <?php echo $ticket['data_abertura']; ?></p>
-  <?php if ($ticket['data_fechamento']): ?>
-  <p><strong>Data Fechamento:</strong> <?php echo $ticket['data_fechamento']; ?></p>
-  <?php endif; ?>
-
-  <?php
-    // Se for analista/admin, permitir atualizar prioridade, estado, atribuição
-    if (($role === 'analista' || $role === 'administrador') && $ticket['estado'] !== 'Fechado') :
-  ?>
-  <h3>Atualizar Chamado</h3>
-  <form method="POST">
-    <input type="hidden" name="acao" value="atualizar" />
-    
-    <label for="novo_prioridade">Prioridade</label>
-    <select id="novo_prioridade" name="nova_prioridade">
-      <option value="Baixo"   <?php if($ticket['prioridade']=='Baixo') echo 'selected';?>>Baixo</option>
-      <option value="Medio"   <?php if($ticket['prioridade']=='Medio') echo 'selected';?>>Médio</option>
-      <option value="Alto"    <?php if($ticket['prioridade']=='Alto') echo 'selected';?>>Alto</option>
-      <option value="Critico" <?php if($ticket['prioridade']=='Critico') echo 'selected';?>>Crítico</option>
-    </select>
-
-    <label for="novo_estado">Estado</label>
-    <select id="novo_estado" name="novo_estado">
-      <option value="Aberto"             <?php if($ticket['estado']=='Aberto') echo 'selected';?>>Aberto</option>
-      <option value="Em Analise"         <?php if($ticket['estado']=='Em Analise') echo 'selected';?>>Em Análise</option>
-      <option value="Aguardando Usuario" <?php if($ticket['estado']=='Aguardando Usuario') echo 'selected';?>>Aguardando Usuário</option>
-      <option value="Resolvido"          <?php if($ticket['estado']=='Resolvido') echo 'selected';?>>Resolvido</option>
-      <option value="Fechado"            <?php if($ticket['estado']=='Fechado') echo 'selected';?>>Fechado</option>
-    </select>
-
-    <label for="novo_risco">Risco</label>
-    <select id="novo_risco" name="novo_risco">
-      <option value="Baixo" <?php if($ticket['risco']=='Baixo') echo 'selected';?>>Baixo</option>
-      <option value="Medio" <?php if($ticket['risco']=='Medio') echo 'selected';?>>Médio</option>
-      <option value="Alto"  <?php if($ticket['risco']=='Alto') echo 'selected';?>>Alto</option>
-    </select>
-
-    <!-- Atribuir a outro analista (ou remover) -->
-    <?php
-    $stmtAn = $pdo->query("SELECT id, nome FROM users WHERE role='analista' ORDER BY nome");
-    $allAnalistas = $stmtAn->fetchAll(PDO::FETCH_ASSOC);
-    ?>
-    <label for="novo_assigned_to">Atribuir a</label>
-    <select id="novo_assigned_to" name="novo_assigned_to">
-      <option value="">-- Ninguém --</option>
-      <?php foreach($allAnalistas as $an): ?>
-        <option value="<?php echo $an['id']; ?>" 
-          <?php if($ticket['assigned_to'] == $an['id']) echo 'selected'; ?>>
-          <?php echo $an['nome']; ?>
-        </option>
-      <?php endforeach; ?>
-    </select>
-
-    <button type="submit">Salvar Alterações</button>
-  </form>
-
-  <?php if ($ticket['estado'] !== 'Fechado'): ?>
-  <form method="POST" style="margin-top:10px;">
-    <input type="hidden" name="acao" value="encerrar" />
-    <button type="submit">Encerrar Chamado</button>
-  </form>
-  <?php endif; ?>
-  <?php endif; ?>
-
-  <!-- Se estado for Resolvido, permitir que o usuário confirm ou reabra (RF05) -->
-  <?php if ($ticket['estado'] === 'Resolvido' && $ticket['user_id'] == $user_id): ?>
-    <form method="POST">
-      <input type="hidden" name="acao" value="confirmar_encerramento" />
-      <button type="submit">Confirmar Encerramento</button>
-    </form>
-    <form method="POST">
-      <input type="hidden" name="acao" value="reabrir" />
-      <button type="submit">Reabrir Chamado</button>
-    </form>
-  <?php elseif ($ticket['estado'] === 'Fechado' && $ticket['user_id'] == $user_id): ?>
-    <!-- Caso queira permitir reabrir mesmo depois de Fechado, mas depende da sua regra de negócio. -->
-    <form method="POST">
-      <input type="hidden" name="acao" value="reabrir" />
-      <button type="submit">Reabrir Chamado</button>
-    </form>
-  <?php endif; ?>
-
-  <h2>Comentários</h2>
-  <?php foreach ($comentarios as $c): ?>
-    <div class="comentario">
-      <strong><?php echo htmlspecialchars($c['nome']); ?></strong> 
-      <?php echo $c['data_criacao']; ?>
-      <?php if (!$c['visivel_usuario']) echo ' <em>(Work Note)</em>'; ?>
-      <p><?php echo nl2br(htmlspecialchars($c['conteudo'])); ?></p>
-      <?php if ($c['anexo']): ?>
-        <p><a href="<?php echo $c['anexo']; ?>" target="_blank">Ver Anexo</a></p>
+  <header>
+    <h1>Portal de Chamados</h1>
+    <nav>
+      <a href="dashboard.php">Dashboard</a>
+      <a href="criar_chamado.php">Abrir Novo Chamado</a>
+      <?php if ($role === 'administrador'): ?>
+        <a href="admin.php">Gerenciar Usuários</a>
+        <a href="relatorios.php">Relatórios</a>
+      <?php elseif ($role === 'analista'): ?>
+        <a href="relatorios.php">Relatórios</a>
       <?php endif; ?>
+      <a href="logout.php">Sair</a>
+    </nav>
+  </header>
+  
+  <main>
+    <div class="dashboard-header">
+      <h2>Chamado #<?php echo $ticket['id']; ?> - <?php echo htmlspecialchars($ticket['titulo']); ?></h2>
+      <div class="ticket-actions">
+        <a href="dashboard.php" class="button">Voltar ao Dashboard</a>
+      </div>
     </div>
-  <?php endforeach; ?>
+    
+    <div class="card ticket-details">
+      <div class="card-header">Detalhes do Chamado</div>
+      <div class="card-content">
+        <div class="ticket-info-grid">
+          <div class="info-group">
+            <div class="info-label">Descrição:</div>
+            <div class="info-value"><?php echo nl2br(htmlspecialchars($ticket['descricao'])); ?></div>
+          </div>
+          
+          <div class="info-group">
+            <div class="info-label">Estado:</div>
+            <div class="info-value <?php echo 'status-' . strtolower($ticket['estado']); ?>" data-field="estado">
+              <?php echo $ticket['estado']; ?>
+            </div>
+          </div>
+          
+          <div class="info-group">
+            <div class="info-label">Prioridade:</div>
+            <div class="info-value <?php echo 'priority-' . strtolower($ticket['prioridade']); ?>" data-field="prioridade">
+              <?php echo $ticket['prioridade']; ?>
+            </div>
+          </div>
+          
+          <div class="info-group">
+            <div class="info-label">Risco:</div>
+            <div class="info-value <?php echo 'risk-' . strtolower($ticket['risco']); ?>" data-field="risco">
+              <?php echo $ticket['risco']; ?>
+            </div>
+          </div>
+          
+          <div class="info-group">
+            <div class="info-label">Tipo:</div>
+            <div class="info-value"><?php echo $ticket['tipo']; ?></div>
+          </div>
+          
+          <div class="info-group">
+            <div class="info-label">Data Abertura:</div>
+            <div class="info-value timestamp">
+              <?php echo date('d/m/Y H:i', strtotime($ticket['data_abertura'])); ?>
+            </div>
+          </div>
+          
+          <?php if ($ticket['data_fechamento']): ?>
+          <div class="info-group">
+            <div class="info-label">Data Fechamento:</div>
+            <div class="info-value timestamp">
+              <?php echo date('d/m/Y H:i', strtotime($ticket['data_fechamento'])); ?>
+            </div>
+          </div>
+          <?php endif; ?>
+          
+          <div class="info-group">
+            <div class="info-label">Solicitante:</div>
+            <div class="info-value"><?php echo htmlspecialchars($ticket['user_nome']); ?></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <?php
+      // Se for analista/admin, permitir atualizar prioridade, estado, atribuição
+      if (($role === 'analista' || $role === 'administrador') && $ticket['estado'] !== 'Fechado') :
+    ?>
+    <div class="card">
+      <div class="card-header">Atualizar Chamado</div>
+      <div class="card-content">
+        <form method="POST" class="update-form">
+          <input type="hidden" name="acao" value="atualizar" />
+          
+          <div class="form-row">
+            <div class="form-field">
+              <label for="novo_prioridade">Prioridade</label>
+              <select id="novo_prioridade" name="nova_prioridade">
+                <option value="Baixo"   <?php if($ticket['prioridade']=='Baixo') echo 'selected';?>>Baixo</option>
+                <option value="Medio"   <?php if($ticket['prioridade']=='Medio') echo 'selected';?>>Médio</option>
+                <option value="Alto"    <?php if($ticket['prioridade']=='Alto') echo 'selected';?>>Alto</option>
+                <option value="Critico" <?php if($ticket['prioridade']=='Critico') echo 'selected';?>>Crítico</option>
+              </select>
+            </div>
+            
+            <div class="form-field">
+              <label for="novo_estado">Estado</label>
+              <select id="novo_estado" name="novo_estado">
+                <option value="Aberto"             <?php if($ticket['estado']=='Aberto') echo 'selected';?>>Aberto</option>
+                <option value="Em Analise"         <?php if($ticket['estado']=='Em Analise') echo 'selected';?>>Em Análise</option>
+                <option value="Aguardando Usuario" <?php if($ticket['estado']=='Aguardando Usuario') echo 'selected';?>>Aguardando Usuário</option>
+                <option value="Resolvido"          <?php if($ticket['estado']=='Resolvido') echo 'selected';?>>Resolvido</option>
+                <option value="Fechado"            <?php if($ticket['estado']=='Fechado') echo 'selected';?>>Fechado</option>
+              </select>
+            </div>
+            
+            <div class="form-field">
+              <label for="novo_risco">Risco</label>
+              <select id="novo_risco" name="novo_risco">
+                <option value="Baixo" <?php if($ticket['risco']=='Baixo') echo 'selected';?>>Baixo</option>
+                <option value="Medio" <?php if($ticket['risco']=='Medio') echo 'selected';?>>Médio</option>
+                <option value="Alto"  <?php if($ticket['risco']=='Alto') echo 'selected';?>>Alto</option>
+              </select>
+            </div>
+          </div>
 
-  <!-- Form para adicionar comentário ou work note (RF04) -->
-  <!-- Se o chamado não estiver Fechado, podemos comentar -->
-  <?php if ($ticket['estado'] !== 'Fechado'): ?>
-  <h3>Adicionar Comentário</h3>
-  <form method="POST" enctype="multipart/form-data">
-    <textarea name="comentario" required></textarea>
-    <br/>
-    <!-- Se for analista/admin, pode marcar como Work Note -->
-    <?php if ($role === 'analista' || $role === 'administrador'): ?>
-      <label><input type="checkbox" name="worknote" value="1" /> Work Note (privado)</label>
+          <!-- Atribuir a outro analista (ou remover) -->
+          <?php
+          $stmtAn = $pdo->query("SELECT id, nome FROM users WHERE role='analista' ORDER BY nome");
+          $allAnalistas = $stmtAn->fetchAll(PDO::FETCH_ASSOC);
+          ?>
+          <div class="form-field">
+            <label for="novo_assigned_to">Atribuir a</label>
+            <select id="novo_assigned_to" name="novo_assigned_to">
+              <option value="">-- Ninguém --</option>
+              <?php foreach($allAnalistas as $an): ?>
+                <option value="<?php echo $an['id']; ?>" 
+                  <?php if($ticket['assigned_to'] == $an['id']) echo 'selected'; ?>>
+                  <?php echo $an['nome']; ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="icon-edit">Salvar Alterações</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <?php if ($ticket['estado'] !== 'Fechado'): ?>
+    <div class="card action-card">
+      <div class="card-content">
+        <form method="POST">
+          <input type="hidden" name="acao" value="encerrar" />
+          <button type="submit" class="action-button icon-close">Encerrar Chamado</button>
+        </form>
+      </div>
+    </div>
     <?php endif; ?>
-    <br/>
-    <label>Anexo (opcional): <input type="file" name="anexo" /></label>
-    <br/>
-    <button type="submit">Enviar</button>
-  </form>
-  <?php endif; ?>
+    <?php endif; ?>
 
-  <br/>
-  <a href="dashboard.php">Voltar ao Dashboard</a>
+    <!-- Se estado for Resolvido, permitir que o usuário confirme ou reabra (RF05) -->
+    <?php if ($ticket['estado'] === 'Resolvido' && $ticket['user_id'] == $user_id): ?>
+    <div class="card action-card">
+      <div class="card-header">Ações do Solicitante</div>
+      <div class="card-content action-buttons">
+        <form method="POST">
+          <input type="hidden" name="acao" value="confirmar_encerramento" />
+          <button type="submit" class="action-button success-button">Confirmar Encerramento</button>
+        </form>
+        <form method="POST">
+          <input type="hidden" name="acao" value="reabrir" />
+          <button type="submit" class="action-button warning-button">Reabrir Chamado</button>
+        </form>
+      </div>
+    </div>
+    <?php elseif ($ticket['estado'] === 'Fechado' && $ticket['user_id'] == $user_id): ?>
+    <div class="card action-card">
+      <div class="card-header">Ações do Solicitante</div>
+      <div class="card-content">
+        <form method="POST">
+          <input type="hidden" name="acao" value="reabrir" />
+          <button type="submit" class="action-button warning-button">Reabrir Chamado</button>
+        </form>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="card">
+      <div class="card-header">Comentários</div>
+      <div class="card-content">
+        <div class="comentarios-container">
+          <?php foreach ($comentarios as $c): ?>
+            <div class="comentario <?php echo (!$c['visivel_usuario']) ? 'work-note' : ''; ?>">
+              <div class="comentario-header">
+                <strong><?php echo htmlspecialchars($c['nome']); ?></strong> 
+                <span class="timestamp"><?php echo date('d/m/Y H:i', strtotime($c['data_criacao'])); ?></span>
+                <?php if (!$c['visivel_usuario']) echo ' <em>(Work Note)</em>'; ?>
+              </div>
+              <p><?php echo nl2br(htmlspecialchars($c['conteudo'])); ?></p>
+              <?php if ($c['anexo']): ?>
+                <p class="attachment"><a href="<?php echo $c['anexo']; ?>" target="_blank" class="icon-attachment">Ver Anexo</a></p>
+              <?php endif; ?>
+            </div>
+          <?php endforeach; ?>
+          
+          <?php if (empty($comentarios)): ?>
+            <p class="no-records">Nenhum comentário encontrado.</p>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form para adicionar comentário ou work note (RF04) -->
+    <!-- Se o chamado não estiver Fechado, podemos comentar -->
+    <?php if ($ticket['estado'] !== 'Fechado'): ?>
+    <div class="card">
+      <div class="card-header icon-comment">Adicionar Comentário</div>
+      <div class="card-content">
+        <form method="POST" enctype="multipart/form-data" id="comment-form">
+          <div class="form-field">
+            <textarea name="comentario" id="comentario" placeholder="Digite seu comentário aqui..." required></textarea>
+            <div class="error-message">Por favor, digite um comentário.</div>
+          </div>
+          
+          <!-- Se for analista/admin, pode marcar como Work Note -->
+          <?php if ($role === 'analista' || $role === 'administrador'): ?>
+            <div class="form-field checkbox-field">
+              <label>
+                <input type="checkbox" name="worknote" value="1" /> 
+                Work Note (visível apenas para analistas)
+              </label>
+            </div>
+          <?php endif; ?>
+          
+          <div class="form-field">
+            <label for="anexo" class="file-input-label">
+              <span class="file-input-text">Anexo (opcional)</span>
+              <input type="file" name="anexo" id="anexo" class="file-input" />
+            </label>
+            <div id="file-selected" class="file-selected"></div>
+            <div id="upload-progress" class="upload-progress-container">
+              <div class="upload-progress-bar"></div>
+              <div class="upload-progress-text">0%</div>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="action-button">Enviar Comentário</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <?php endif; ?>
+  </main>
+
+<div id="theme-toggle-container">
+  <button id="theme-toggle" class="theme-toggle" title="Alternar tema claro/escuro">🌓</button>
+</div>
+
+<!-- Script para upload de arquivos com barra de progresso -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Tema claro/escuro
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      document.body.classList.toggle('light-theme');
+      const isDark = !document.body.classList.contains('light-theme');
+      localStorage.setItem('darkTheme', isDark);
+    });
+    
+    // Restaurar tema
+    if (localStorage.getItem('darkTheme') === 'false') {
+      document.body.classList.add('light-theme');
+    }
+  }
+  
+  // Upload de arquivos com barra de progresso
+  const fileInput = document.getElementById('anexo');
+  const fileSelected = document.getElementById('file-selected');
+  const uploadProgress = document.getElementById('upload-progress');
+  const progressBar = uploadProgress.querySelector('.upload-progress-bar');
+  const progressText = uploadProgress.querySelector('.upload-progress-text');
+  
+  if (fileInput) {
+    uploadProgress.style.display = 'none';
+    
+    fileInput.addEventListener('change', function() {
+      if (this.files.length > 0) {
+        const fileName = this.files[0].name;
+        const fileSize = (this.files[0].size / 1024).toFixed(2) + ' KB';
+        fileSelected.textContent = fileName + ' (' + fileSize + ')';
+        fileSelected.style.display = 'block';
+      } else {
+        fileSelected.style.display = 'none';
+      }
+    });
+    
+    // Formulário de comentário
+    const commentForm = document.getElementById('comment-form');
+    if (commentForm) {
+      commentForm.addEventListener('submit', function(e) {
+        const comentario = document.getElementById('comentario');
+        
+        // Validação básica
+        if (!comentario.value.trim()) {
+          e.preventDefault();
+          comentario.closest('.form-field').classList.add('error');
+          return;
+        }
+        
+        // Se tem arquivo anexado, mostrar barra de progresso
+        if (fileInput.files.length > 0) {
+          // Simular upload com progresso (Em uma implementação real, você usaria AJAX/FormData)
+          e.preventDefault();
+          
+          uploadProgress.style.display = 'block';
+          commentForm.querySelector('button[type="submit"]').disabled = true;
+          
+          let progress = 0;
+          const interval = setInterval(function() {
+            progress += 5;
+            progressBar.style.width = progress + '%';
+            progressText.textContent = progress + '%';
+            
+            if (progress >= 100) {
+              clearInterval(interval);
+              // Enviar o formulário após "upload"
+              setTimeout(function() {
+                commentForm.submit();
+              }, 500);
+            }
+          }, 100);
+        }
+      });
+    }
+  }
+});
+</script>
+
+<div id="theme-toggle-container" class="theme-toggle-container">
+  <button id="theme-toggle" class="theme-toggle" title="Alternar tema claro/escuro">🌓</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Tema claro/escuro
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', function() {
+      document.body.classList.toggle('light-theme');
+      const isDark = !document.body.classList.contains('light-theme');
+      localStorage.setItem('darkTheme', isDark);
+    });
+    
+    // Restaurar tema
+    if (localStorage.getItem('darkTheme') === 'false') {
+      document.body.classList.add('light-theme');
+    }
+  }
+});
+</script>
+
 </body>
 </html>

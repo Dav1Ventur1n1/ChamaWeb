@@ -1,20 +1,26 @@
 <?php
 session_start();
+require_once 'vendor/autoload.php';
 require_once 'inc/connect.php';
-
-function registrarLog($pdo, $tipo, $descricao, $userId = null) {
-    $stmtLog = $pdo->prepare("INSERT INTO logs (user_id, tipo, descricao) VALUES (:uid, :t, :d)");
-    $stmtLog->execute([
-        'uid' => $userId,
-        't'   => $tipo,
-        'd'   => $descricao
-    ]);
-}
+require_once 'shared/log.php';
 
 if (isset($_SESSION['user_id'])) {
     registrarLog($pdo, 'LOGOUT', 'Usuário saiu', $_SESSION['user_id']);
 }
 
+$wasCognitoAuth = isset($_SESSION['cognito_auth']) && $_SESSION['cognito_auth'];
+
 session_destroy();
+
+if ($wasCognitoAuth) {
+    $domain = 'us-east-2ngsr1zsvz.auth.us-east-2.amazoncognito.com';
+    $clientId = '5drp597e5uk101sbcsqqcgsmmn';
+    $logoutUri = 'http://localhost:8080/index.html';
+    $logoutUrl = 'https://' . $domain . '/logout?client_id=' . $clientId . '&logout_uri=' . urlencode($logoutUri);
+    header('Location: ' . $logoutUrl);
+    exit;
+}
+
 header('Location: index.html');
 exit;
+?>
