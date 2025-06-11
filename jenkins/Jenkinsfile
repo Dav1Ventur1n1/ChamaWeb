@@ -1,0 +1,92 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_HOST = "unix:///var/run/docker.sock"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Dav1Ventur1n1/ChamaWeb'
+            }
+        }
+
+        stage('Check Docker Access') {
+            steps {
+                sh '''
+                docker info || {
+                    echo "Docker daemon inacessível!"
+                    exit 1
+                }
+                '''
+            }
+        }
+
+        stage('Adjust Kube Config Paths') {
+            steps {
+                sh '''
+                sed -i 's|C:\\\\Users\\\\Arthur Martos\\\\.minikube|/home/jenkins/.minikube|g' ~/.kube/config || true
+                '''
+            }
+        }
+
+        stage('Build images') {
+            steps {
+                sh '''
+                docker build -t web:latest -f Dockerfile .
+                docker build -t gateway:latest -f services/gateway/Dockerfile .
+                docker build -t tickets:latest -f services/tickets/Dockerfile .
+                docker build -t stats:latest -f services/stats/Dockerfile .
+                docker-compose build
+                '''
+            }
+        }
+
+        stage('Test images') {
+            steps {
+                sh 'docker run --rm web:latest php -v'
+            }
+        }
+
+        stage('Load images') {
+            steps {
+                sh '''
+                minikube image load web:latest
+                minikube image load gateway:latest
+                minikube image load tickets:latest
+                minikube image load stats:latest
+                '''
+            }
+        }
+
+        stage('Aviso: Deploy manual necessário') {
+            steps {
+                echo '''
+                ================================================
+                A aplicação foi construída com sucesso!
+
+                🚨 O deploy para o Kubernetes NÃO foi feito aqui,
+                pois o Jenkins está em um container isolado.
+
+                ✅ Execute manualmente no host (Windows):
+                   > minikube image load web:latest
+                   > minikube image load gateway:latest
+                   > minikube image load tickets:latest
+                   > minikube image load stats:latest
+                   > kubectl apply -f k8s/
+                   > kubectl get pods
+                   > kubectl port-forward service/web 8443:443
+                   > kubectl port-forward service/gateway 8081:80
+                ================================================
+                '''
+            }
+        }
+    }
+
+    post {
+        cleanup {
+            echo "Nenhuma limpeza via kubectl será realizada no Jenkins container."
+        }
+    }
+}

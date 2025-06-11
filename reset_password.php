@@ -14,7 +14,7 @@ if (isset($_POST['email'])) {
     if ($user) {
         // Exemplo simplificado: redefinir senha para "1234" (hash)
         // Em produção, gere token e envie e-mail com link
-        $novaSenhaHash = hash('sha256', '1234');
+        $novaSenhaHash = password_hash('1234', PASSWORD_DEFAULT);
         $stmtUpd = $pdo->prepare("UPDATE users SET senha=:s WHERE id=:id");
         $stmtUpd->execute(['s'=>$novaSenhaHash, 'id'=>$user['id']]);
         echo "Senha redefinida. <a href='index.php'>Fazer login</a>";

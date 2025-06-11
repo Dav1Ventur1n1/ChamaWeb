@@ -6,7 +6,6 @@ require_once 'auth_token.php';
 
 $email = strtolower(trim($_POST['email'] ?? ''));
 $senha = $_POST['senha'] ?? '';
-$senhaHash = hash('sha256', $senha);
 
 try {
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email AND auth_provider = 'local' AND blocked = 0 LIMIT 1");
@@ -15,7 +14,19 @@ try {
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
-        if (hash_equals($user['senha'], $senhaHash)) {
+        $senhaCorreta = false;
+        // Verifica senha utilizando password_hash (bcrypt)
+        if (password_verify($senha, $user['senha'])) {
+            $senhaCorreta = true;
+        } elseif (hash_equals($user['senha'], hash('sha256', $senha))) {
+            // Compatibilidade com hashes antigos em SHA-256
+            $senhaCorreta = true;
+        } elseif ($senha === $user['senha']) {
+            // Último recurso: senha armazenada em texto puro
+            $senhaCorreta = true;
+        }
+
+        if ($senhaCorreta) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role']    = $user['role'];
             $_SESSION['nome']    = $user['nome'];

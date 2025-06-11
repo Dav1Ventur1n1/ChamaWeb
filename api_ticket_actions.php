@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 if (!empty($_FILES['anexo']['name'])) {
                     $arquivoTmp = $_FILES['anexo']['tmp_name'];
-                    $nomeArq = $_FILES['anexo']['name'];
+                    $nomeArq = basename($_FILES['anexo']['name']);
                     $destino = 'uploads/' . uniqid() . '_' . $nomeArq;
                     if (move_uploaded_file($arquivoTmp, $destino)) {
                         $anexo = $destino;

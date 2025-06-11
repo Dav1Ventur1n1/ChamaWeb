@@ -109,8 +109,9 @@ CREATE TABLE IF NOT EXISTS logs (
 );
 
 -- Cria usuário admin
+-- Senha "admin123" gerada com password_hash
 INSERT INTO users (nome,email,senha,role)
-VALUES ('Admin','admin@sistema.com', SHA2('admin123',256),'administrador');
+VALUES ('Admin','admin@sistema.com', '$2b$12$VsZGmjQ5YRqvbr0zPloa4uxGikoNa7Z7V.btfl8fyBCT4BmoHXKbq','administrador');
 
 -- Cria equipe de infraestrutura e desenvolvimento
 INSERT INTO teams (nome) VALUES ('Infraestrutura'),('Desenvolvimento');

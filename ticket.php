@@ -34,12 +34,12 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $role    = $_SESSION['role'];
 
-if (!isset($_GET['id'])) {
+if (!isset($_GET['id']) || !ctype_digit($_GET['id'])) {
     header('Location: dashboard.php');
     exit;
 }
 
-$ticket_id = $_GET['id'];
+$ticket_id = (int)$_GET['id'];
 
 // Buscar o chamado
 $stmtT = $pdo->prepare("SELECT t.*, u.email AS user_email, u.nome AS user_nome
@@ -69,10 +69,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Upload de anexo (RF04)
         if (!empty($_FILES['anexo']['name'])) {
             $arquivoTmp = $_FILES['anexo']['tmp_name'];
-            $nomeArq = $_FILES['anexo']['name'];
+            $nomeArq = basename($_FILES['anexo']['name']);
             $destino = 'uploads/' . uniqid() . '_' . $nomeArq;
-            move_uploaded_file($arquivoTmp, $destino);
-            $anexo = $destino;
+            if (move_uploaded_file($arquivoTmp, $destino)) {
+                $anexo = $destino;
+            }
         }
 
         $stmtCom = $pdo->prepare("INSERT INTO comentarios (ticket_id, user_id, conteudo, visivel_usuario, anexo) 
@@ -398,9 +399,9 @@ $comentarios = $stmtC->fetchAll(PDO::FETCH_ASSOC);
                 <?php if (!$c['visivel_usuario']) echo ' <em>(Work Note)</em>'; ?>
               </div>
               <p><?php echo nl2br(htmlspecialchars($c['conteudo'])); ?></p>
-              <?php if ($c['anexo']): ?>
-                <p class="attachment"><a href="<?php echo $c['anexo']; ?>" target="_blank" class="icon-attachment">Ver Anexo</a></p>
-              <?php endif; ?>
+                <?php if ($c['anexo']): ?>
+                  <p class="attachment"><a href="<?php echo htmlspecialchars($c['anexo'], ENT_QUOTES); ?>" target="_blank" rel="noopener" class="icon-attachment">Ver Anexo</a></p>
+                <?php endif; ?>
             </div>
           <?php endforeach; ?>
           

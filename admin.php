@@ -12,7 +12,7 @@ if (isset($_POST['acao']) && $_POST['acao'] === 'criar_usuario') {
     $nome  = $_POST['nome'] ?? '';
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
-    $senhaHash = hash('sha256', $senha);
+    $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
     $role  = $_POST['role']  ?? 'usuario';
 
     $stmt = $pdo->prepare("INSERT INTO users (nome,email,senha,role) VALUES (:n,:e,:s,:r)");

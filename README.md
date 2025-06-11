@@ -17,7 +17,7 @@ Utilize o `docker-compose` para subir todos os serviços. O script `script_sql.s
 será executado automaticamente no primeiro start do banco, populando a tabela de
 exemplo com um usuário administrador.
 
-Credenciais padrão: `admin@sistema.com` / `admin123` (armazenada como hash SHA-256).
+Credenciais padrão: `admin@sistema.com` / `admin123`. A senha é gravada no banco como hash `bcrypt`, mas o login aceita também registros antigos em SHA-256 ou texto simples.
 
 ```bash
 docker-compose up --build
@@ -83,6 +83,7 @@ docker-compose build
 Se estiver utilizando o Minikube, carregue-as no cluster:
 
 ```bash
+minikube start
 minikube image load web:latest
 minikube image load gateway:latest
 minikube image load tickets:latest
@@ -115,4 +116,43 @@ kubectl port-forward service/web 8443:443
 Depois acesse `http://localhost:8080` para o portal web, `http://localhost:8081` para o gateway ou `https://localhost:8443` para conexão segura.
 
 Se algum pod ficar em `ImagePullBackOff`, verifique se as imagens estão disponíveis no Minikube com `minikube image ls`. Os manifestos definem `imagePullPolicy: Never` justamente para usar as imagens locais. Caso faltem, execute novamente `docker-compose build` e `minikube image load <nome>:latest` para cada serviço.
+
+
+## Jenkins
+
+Deve-se subir um docker separado para o Jenkins funcionar de maneira correta.
+
+Para subir o docker do Jenkins. O comando utilizado para rodar o docker do jenkins inclui o comando para que seja possivel criar um container "dentro" do container do jenkins, na verdade o comando permite que o jenkins acesse o docker do host, crindo o container a partir dali
+
+```bash
+docker build -t jenkins-chamaweb -f jenkins/Dockerfile .
+docker run -d --name jenkins `
+  -p 8090:8090 `
+  -v //var/run/docker.sock:/var/run/docker.sock `
+  -v "$HOME/.kube:/home/jenkins/.kube" `
+  -v "$HOME/.minikube:/home/jenkins/.minikube" `
+  -v jenkins_home:/var/jenkins_home `
+  --group-add 0 `
+  jenkins-chamaweb
+
+  ```
+
+Acesse o container do jenkins como root através do comando abaixo e instale o docker manualmente
+```bash
+docker exec -u 0 -it jenkins bash
+apt update
+apt install -y docker.io
+  ```
+
+Para realizar a instalação do jenkins é necessário colocar a senha iniciar, para isso acesse a maquina e rode o comando cat na pasta indicada pelo jenkins, normlamente (/home/jenkins/secrets/initialAdminPassword)
+```bash
+docker exec -it jenkins bash
+cat /caminho/para/a/senha
+  ```
+
+Para voltar a rodar o Jenkins quando o container for desligado
+```bash
+docker start jenkins
+  ```
+
 

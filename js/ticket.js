@@ -121,12 +121,13 @@ function addNewCommentToList(comment) {
     // Criar o elemento do comentário
     const commentDiv = document.createElement('div');
     commentDiv.className = 'comentario fade-in';
+    const anexoLink = comment.anexo ? `<p><a href="${encodeURI(comment.anexo)}" target="_blank" rel="noopener">Ver Anexo</a></p>` : '';
     commentDiv.innerHTML = `
-        <strong>${escapeHtml(comment.nome)}</strong> 
-        ${comment.data_criacao}
+        <strong>${escapeHtml(comment.nome)}</strong>
+        ${escapeHtml(comment.data_criacao)}
         ${!comment.visivel_usuario ? ' <em>(Work Note)</em>' : ''}
         <p>${nl2br(escapeHtml(comment.conteudo))}</p>
-        ${comment.anexo ? `<p><a href="${comment.anexo}" target="_blank">Ver Anexo</a></p>` : ''}
+        ${anexoLink}
     `;
     
     // Adicionar ao início da lista de comentários

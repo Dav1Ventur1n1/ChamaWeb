@@ -1,5 +1,10 @@
 <?php
-$requestUri = strtok($_SERVER['REQUEST_URI'], '?');
+$requestUri = filter_var(strtok($_SERVER['REQUEST_URI'], '?'), FILTER_SANITIZE_URL);
+if (strpos($requestUri, '..') !== false) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid path']);
+    return;
+}
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($requestUri === '/' || $requestUri === '') {
@@ -34,7 +39,8 @@ foreach (getallheaders() as $name => $value) {
     $options['http']['header'] .= "$name: $value\r\n";
 }
 $context = stream_context_create($options);
-$response = file_get_contents($service . (isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : ''), false, $context);
+$query = http_build_query($_GET);
+$response = file_get_contents($service . ($query ? '?' . $query : ''), false, $context);
 
 $httpCode = 500;
 if (isset($http_response_header[0]) && preg_match('#HTTP/\d+\.\d+\s+(\d+)#', $http_response_header[0], $matches)) {

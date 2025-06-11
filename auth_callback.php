@@ -42,7 +42,7 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
     $senhaTemp = bin2hex(random_bytes(8));
-    $senhaHash = hash('sha256', $senhaTemp);
+    $senhaHash = password_hash($senhaTemp, PASSWORD_DEFAULT);
     $stmtNewUser = $pdo->prepare('INSERT INTO users (nome, email, senha, role) VALUES (:nome, :email, :senha, "usuario")');
     $stmtNewUser->execute([
         'nome' => $name,
