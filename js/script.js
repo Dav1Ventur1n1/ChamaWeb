@@ -1,11 +1,3 @@
-<<<<<<< HEAD
-// Exemplo simples para demonstrar como poderia ser usado.
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("JS carregado!");
-    // Adicione aqui lógica de validação, máscaras, etc.
-  });
-  
-=======
 // Script principal para o Portal de Chamados
 document.addEventListener('DOMContentLoaded', function() {
     console.log("JS carregado!");
@@ -65,7 +57,7 @@ function setupDashboardFeatures() {
 
         fetch('api_chamados_rest.php?' + params.toString(), {
             headers: {
-                'Authorization': 'Bearer admin123'
+                'Authorization': 'Bearer ' + (window.JWT_TOKEN || '')
             }
         })
             .then(response => {
@@ -225,4 +217,3 @@ function escapeHtml(text) {
     };
     return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
->>>>>>> finalizado_jenkins

@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 $ch = curl_init('http://gateway:80/stats');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Authorization: Bearer ' . API_TOKEN
+    'Authorization: Bearer ' . ($_SESSION['jwt'] ?? '')
 ]);
 $response = curl_exec($ch);
 curl_close($ch);

@@ -15,7 +15,7 @@ $role    = $_SESSION['role'];
 
 // Configurar cabeçalho e token
 $headers = [
-    "Authorization: Bearer " . API_TOKEN
+    "Authorization: Bearer " . ($_SESSION['jwt'] ?? '')
 ];
 
 // Construir URL base da API via gateway

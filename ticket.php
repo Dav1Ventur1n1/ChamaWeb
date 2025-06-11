@@ -1,5 +1,4 @@
 <?php
-
 // Manter todo o PHP original
 session_start();
 require_once 'inc/connect.php';
@@ -28,7 +27,7 @@ function enviarNotificacao($destinatarioEmail, $assunto, $mensagem) {
 }
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: index.html');
+    header('Location: index.php');
     exit;
 }
 
@@ -59,6 +58,7 @@ if (!$ticket) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Lógica de processamento do POST original
     // Manter todo o código original aqui
+    
     // Verifica se é comentário ou mudança de estado/encerramento
     if (isset($_POST['comentario'])) {
         // Adicionar Comentário
@@ -192,10 +192,10 @@ $comentarios = $stmtC->fetchAll(PDO::FETCH_ASSOC);
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chamado #<?php echo $ticket_id; ?></title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/animations.css" />
-  <link rel="stylesheet" href="css/enhanced.css" />
-  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+  <link rel="stylesheet" href="/css/enhanced.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
 </head>
 <body>
   <header>

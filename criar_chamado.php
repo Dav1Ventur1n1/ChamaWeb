@@ -3,7 +3,7 @@ session_start();
 require_once 'inc/connect.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header('Location: index.html');
+    header('Location: index.php');
     exit;
 }
 
@@ -22,67 +22,6 @@ $analistas = $stmtAnalistas->fetchAll(PDO::FETCH_ASSOC);
 $stmtTeams = $pdo->query("SELECT * FROM teams ORDER BY nome");
 $teams = $stmtTeams->fetchAll(PDO::FETCH_ASSOC);
 
-// Se POST, inserir no banco
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $titulo   = $_POST['titulo'] ?? '';
-    $descricao= $_POST['descricao']?? '';
-    $servico  = $_POST['servico']  ?? '';
-    $tipo     = $_POST['tipo'] ?? 'Incidente';
-    $categoria_id = $_POST['categoria_id'] ?? null;
-
-    if ($role === 'analista' || $role === 'administrador') {
-        $prioridade   = $_POST['prioridade'] ?? 'Baixo';
-        $risco        = $_POST['risco'] ?? 'Baixo';
-        $assigned_to  = $_POST['assigned_to'] ?? null;
-        $assigned_team= $_POST['assigned_team'] ?? null;
-    } else {
-        $prioridade = 'Baixo';
-        $risco = 'Baixo';
-        $assigned_to = null;
-        $assigned_team = null;
-    }
-    // Monta payload
-    $data = [
-        'titulo' => $titulo,
-        'descricao' => $descricao,
-        'categoria_id' => $categoria_id ?: null,
-        'servico_impactado' => $servico,
-        'tipo' => $tipo,
-        'prioridade' => $prioridade,
-        'risco' => $risco,
-        'user_id' => $user_id,
-        'assigned_to' => !empty($assigned_to) ? $assigned_to : null,
-        'assigned_team_id' => !empty($assigned_team) ? $assigned_team : null
-    ];
-
-    // Envia para o microserviço de tickets através do gateway
-    $ch = curl_init('http://gateway:80/tickets');
-    curl_setopt($ch, CURLOPT_VERBOSE, true); // Para debugar
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: Bearer admin123'
-    ]);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-    if (curl_errno($ch)) {
-        echo '<pre>Erro CURL: ' . curl_error($ch) . '</pre>';
-    }
-
-    curl_close($ch);
-
-    if ($http_code === 200) {
-        header("Location: dashboard.php");
-        exit;
-    } else {
-        echo "<pre>Erro ao criar chamado via API. Código HTTP: $http_code</pre>";
-        echo "<pre>Resposta: $response</pre>";
-    }
-
-}
 
 ?>
 <!DOCTYPE html>
@@ -91,10 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Abrir Novo Chamado</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/animations.css" />
-  <link rel="stylesheet" href="css/enhanced.css" />
-  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+  <link rel="stylesheet" href="/css/enhanced.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
 </head>
 <body>
   <header>
@@ -123,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="card">
       <div class="card-header">Informações do Chamado</div>
       <div class="card-content">
-        <form method="POST" id="criar-chamado-form">
+        <form method="POST" id="criar-chamado-form" action="#">
           <div class="form-field">
             <label for="titulo">Título</label>
             <input type="text" id="titulo" name="titulo" required placeholder="Digite um título descritivo para o chamado" />
@@ -249,6 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     const form = document.getElementById('criar-chamado-form');
     if (form) {
       form.addEventListener('submit', function(e) {
+        e.preventDefault();
         let isValid = true;
         
         // Validar campos obrigatórios
@@ -275,15 +215,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
         
         if (!isValid) {
-          // Criar notificação toast
           showToast('error', 'Por favor, preencha todos os campos obrigatórios');
-        } else {
-          // Mostrar feedback visual de envio
-          document.getElementById('submit-button').disabled = true;
-          document.getElementById('submit-button').innerHTML = '<span class="spinner"></span> Enviando...';
-          // Criar notificação toast
-          showToast('info', 'Criando chamado, aguarde...');
+          return;
         }
+
+        document.getElementById('submit-button').disabled = true;
+        document.getElementById('submit-button').innerHTML = '<span class="spinner"></span> Enviando...';
+
+        const formData = new FormData(form);
+        fetch('api/create_ticket.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(resp => resp.json())
+        .then(data => {
+          if (data.success) {
+            window.location = 'dashboard.php';
+          } else {
+            showToast('error', data.error || 'Erro ao criar chamado');
+            document.getElementById('submit-button').disabled = false;
+            document.getElementById('submit-button').innerHTML = 'Abrir Chamado';
+          }
+        })
+        .catch(() => {
+          showToast('error', 'Falha na comunicação com o servidor');
+          document.getElementById('submit-button').disabled = false;
+          document.getElementById('submit-button').innerHTML = 'Abrir Chamado';
+        });
       });
     }
     

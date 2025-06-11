@@ -6,7 +6,7 @@ require_once 'inc/connect.php';
 require_once 'shared/log.php';
 
 if (!isset($_GET['code'])) {
-    header('Location: index.html?erro=2');
+    header('Location: /index.php?erro=2');
     exit;
 }
 
@@ -14,7 +14,7 @@ $auth = new CognitoAuth();
 $code = $_GET['code'];
 $tokens = $auth->getTokens($code);
 if (!$tokens) {
-    header('Location: index.html?erro=3');
+    header('Location: /index.php?erro=3');
     exit;
 }
 
@@ -22,7 +22,7 @@ $userInfo = $auth->verifyToken($tokens['id_token'] ?? '');
 if (!$userInfo) {
     $userInfo = $auth->getUserInfo($tokens['access_token'] ?? '');
     if (!$userInfo) {
-        header('Location: index.html?erro=4');
+        header('Location: /index.php?erro=4');
         exit;
     }
 }
@@ -32,7 +32,7 @@ $name = $userInfo['name'] ?? ($userInfo['given_name'] ?? 'Usuário Cognito');
 $sub  = $userInfo['sub'] ?? '';
 
 if (empty($email)) {
-    header('Location: index.html?erro=5');
+    header('Location: /index.php?erro=5');
     exit;
 }
 
@@ -56,7 +56,7 @@ if (!$user) {
 
 if ($user['blocked']) {
     registrarLog($pdo, 'ERRO_LOGIN', 'Tentativa de login de usuário bloqueado via Cognito: ' . $email);
-    header('Location: index.html?erro=6');
+    header('Location: /index.php?erro=6');
     exit;
 }
 

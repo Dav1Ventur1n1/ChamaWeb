@@ -1,4 +1,2 @@
 <?php
-// Token fixo que o cliente precisa enviar no header Authorization
-define('API_TOKEN', 'admin123');
-?>
+require_once __DIR__ . '/shared/jwt.php';

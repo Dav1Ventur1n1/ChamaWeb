@@ -2,6 +2,7 @@
 session_start();
 require_once 'inc/connect.php';
 require_once 'shared/log.php';
+require_once 'auth_token.php';
 
 $email = strtolower(trim($_POST['email'] ?? ''));
 $senha = $_POST['senha'] ?? '';
@@ -18,6 +19,11 @@ try {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['role']    = $user['role'];
             $_SESSION['nome']    = $user['nome'];
+            $_SESSION['jwt']     = jwt_encode([
+                'id' => $user['id'],
+                'role' => $user['role'],
+                'exp' => time() + 3600
+            ]);
 
             registrarLog($pdo, 'LOGIN', 'Login local', $user['id']);
             header('Location: dashboard.php');

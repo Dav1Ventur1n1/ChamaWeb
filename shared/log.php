@@ -7,4 +7,3 @@ function registrarLog($pdo, $tipo, $descricao, $userId = null) {
         'd'   => $descricao
     ]);
 }
-?>

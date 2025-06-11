@@ -8,7 +8,7 @@ require_once 'auth_token.php';
 
 // Verifica se o usuário está logado
 if (!isset($_SESSION['user_id'])) {
-    header('Location: index.html');
+    header('Location: index.php');
     exit;
 }
 
@@ -21,7 +21,7 @@ $ch = curl_init($apiUrl);
 
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Authorization: Bearer ' . API_TOKEN
+    'Authorization: Bearer ' . ($_SESSION['jwt'] ?? '')
 ]);
 
 $response = curl_exec($ch);
@@ -43,10 +43,13 @@ if ($role !== 'usuario') {
 <head>
   <meta charset="UTF-8"/>
   <title>Portal de Chamados - Dashboard</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/animations.css" />
-  <link rel="stylesheet" href="css/enhanced.css" />
-  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+  <link rel="stylesheet" href="/css/enhanced.css" />
+<link rel="stylesheet" href="/css/theme.css" />
+  <script>
+    window.JWT_TOKEN = '<?php echo $_SESSION['jwt']; ?>';
+  </script>
 </head>
 <body>
 <header>
@@ -62,6 +65,7 @@ if ($role !== 'usuario') {
     <a href="logout.php">Sair</a>
   </nav>
 </header>
+
 <main>
   <div class="dashboard-header">
     <h2>Lista de Chamados</h2>
@@ -125,6 +129,6 @@ if ($role !== 'usuario') {
   <button id="theme-toggle" class="theme-toggle" title="Alternar tema claro/escuro">🌓</button>
 </div>
 
-<script src="js/script.js"></script>
+<script src="/js/script.js"></script>
 </body>
 </html>

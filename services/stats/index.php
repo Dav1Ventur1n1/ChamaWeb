@@ -2,10 +2,14 @@
 require_once 'inc/connect.php';
 require_once 'auth_token.php';
 
-// Verifica token simples para autenticação
+// Verifica token JWT para autenticação
 $headers = getallheaders();
-$auth = $headers['Authorization'] ?? '';
-if ($auth !== 'Bearer ' . API_TOKEN) {
+$token = '';
+if (isset($headers['Authorization']) && preg_match('/Bearer\s+(.*)/', $headers['Authorization'], $m)) {
+    $token = $m[1];
+}
+$payload = $token ? jwt_decode($token) : false;
+if (!$payload) {
     http_response_code(401);
     echo json_encode(['error' => 'Não autorizado']);
     exit;

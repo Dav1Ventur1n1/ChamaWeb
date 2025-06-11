@@ -6,6 +6,7 @@ services:
     image: web:latest
     ports:
       - "8080:80"
+      - "8443:443"
     depends_on:
       - gateway
 
@@ -58,6 +59,7 @@ services:
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: root
+
 
 volumes:
   db_data:

@@ -15,12 +15,12 @@ session_destroy();
 if ($wasCognitoAuth) {
     $domain = 'us-east-2ngsr1zsvz.auth.us-east-2.amazoncognito.com';
     $clientId = '5drp597e5uk101sbcsqqcgsmmn';
-    $logoutUri = 'http://localhost:8080/index.html';
+    $logoutUri = 'http://localhost:8080/index.php';
     $logoutUrl = 'https://' . $domain . '/logout?client_id=' . $clientId . '&logout_uri=' . urlencode($logoutUri);
     header('Location: ' . $logoutUrl);
     exit;
 }
 
-header('Location: index.html');
+header('Location: index.php');
 exit;
 ?>

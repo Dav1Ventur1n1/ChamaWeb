@@ -93,7 +93,7 @@ class CognitoAuth {
      */
     public function getLogoutUrl($redirectUri = null) {
         if (!$redirectUri) {
-            $redirectUri = 'http://localhost:8080/index.html';
+            $redirectUri = 'http://localhost:8080/index.php';
         }
         
         // Construir a URL de logout corretamente

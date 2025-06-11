@@ -19,4 +19,3 @@ function enviarNotificacao($userId, $assunto, $mensagem) {
     }
     return true;
 }
-?>

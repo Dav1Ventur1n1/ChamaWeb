@@ -8,8 +8,12 @@ $id = $_GET['id'] ?? null;
 
 // Verificação de token
 $headers = getallheaders();
-$auth = $headers['Authorization'] ?? '';
-if ($auth !== 'Bearer ' . API_TOKEN) {
+$token = '';
+if (isset($headers['Authorization']) && preg_match('/Bearer\s+(.*)/', $headers['Authorization'], $m)) {
+    $token = $m[1];
+}
+$payload = $token ? jwt_decode($token) : false;
+if (!$payload) {
     http_response_code(401);
     echo json_encode(["error" => "Acesso não autorizado"]);
     exit;

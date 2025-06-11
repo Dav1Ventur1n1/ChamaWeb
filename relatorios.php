@@ -3,7 +3,7 @@ session_start();
 require_once 'inc/connect.php';
 
 if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['analista','administrador'])) {
-    header('Location: index.html');
+    header('Location: index.php');
     exit;
 }
 
@@ -24,12 +24,13 @@ if (isset($_GET['export']) && $_GET['export'] === 'csv') {
     fclose($output);
     exit;
 }
+
 // Buscar estatísticas do microserviço via gateway
 require_once 'auth_token.php';
 $ch = curl_init('http://gateway:80/stats');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Authorization: Bearer ' . API_TOKEN
+    'Authorization: Bearer ' . ($_SESSION['jwt'] ?? '')
 ]);
 $response = curl_exec($ch);
 curl_close($ch);
@@ -52,10 +53,10 @@ $topCategorias = $data['top_categorias'] ?? [];
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Relatórios</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/animations.css" />
-  <link rel="stylesheet" href="css/enhanced.css" />
-  <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/animations.css" />
+  <link rel="stylesheet" href="/css/enhanced.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
